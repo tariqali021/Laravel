@@ -76,3 +76,29 @@ $this->app->when(VideoController::class)
 - Facade class defines the method getFacadeAccessor(). This method's job is to return the name of a service container binding. 
 - When a user references any static method on the Cache facade, Laravel resolves the cache binding from the service container and runs the requested method against that object.
 
+### AUTOLOADING
+
+- to load files automatically from storage when needed
+- when you use a class in your application, the autoloader checks if it’s already loaded, and if not, the autoloader loads the necessary class into memory. So the class is loaded on the fly where it’s needed—this is called autoloading
+- When you’re using autoloading, you don’t need to include all the library files manually; you just need to include the autoloader file which contains the logic of autoloading, and the necessary classes will be included dynamically.
+-  without autoloading you would need to use `require` or `include` to include files
+
+**Autoloading using Composer**
+- Using composer you can autoload via composer.json file in the root of project. Composer provides four different methods for autoloading files:
+    - file autoloading
+    - classmap autoloading
+    - PSR-0 autoloading
+    - PSR-4 autoloading
+    
+### REQUEST LIFE CYCLE
+
+- First the requests are directed to `public/index.php` by your web server (Apache / Nginx) configuration
+- Next The `index.php` file loads the Composer generated autoloader definition, and then retrieves an instance of the Laravel application from `bootstrap/app.php`.
+- Next, the incoming request is sent to either the HTTP kernel or the console kernel, depending on the type of request that is entering the application. (kernels serve as the central location that all requests flow)
+- The HTTP kernel extends the `Illuminate\Foundation\Http\Kernel` class, which defines an array of bootstrappers that will be run before the request is executed. These bootstrapers load envirenment & configurations & srvice providers, register facades & providers and boot providers. Then the request passes through the `middlewares` defined in `kernel.php` file like session middleware, check maitenance mode, verify CSRF token,
+- Next `kernel` loads the service providers configured in `config/app.php` configuration file's `providers` array. The `register` method of each provider will be called. Then, once all of the providers have been registered, the `boot` method will be called on each provider. By calling the `register` method of every service provider first, service providers may depend on every container binding being registered and available by the time the `boot` method is executed. The `RouteServiceProvider` loads route files.
+- Next the request will be handed off to the router for dispatching. Also the router will run any route specific middleware.
+- Next after passing through middlewares, router or controller method will be executed that will return response.
+- Next the response will travel back through router middleware by giving a chance to modify response, the HTTP kernel's handle method returns the response object and the `index.php` file calls the `send` method on the returned response. The `send` method sends the response content to the user's web browser.
+ 
+
