@@ -78,6 +78,7 @@ $this->app->when(VideoController::class)
 - when you use a class in your application, the autoloader checks if it’s already loaded, and if not, the autoloader loads the necessary class into memory. So the class is loaded on the fly where it’s needed—this is called autoloading
 - When you’re using autoloading, you don’t need to include all the library files manually; you just need to include the autoloader file which contains the logic of autoloading, and the necessary classes will be included dynamically.
 -  without autoloading you would need to use `require` or `include` to include files
+- remove the complexity of including files by mapping namespaces to file system paths.
 
 **Autoloading using Composer**
 - Using composer you can autoload via composer.json file in the root of project. Composer provides four different methods for autoloading files:
@@ -85,6 +86,19 @@ $this->app->when(VideoController::class)
     - classmap autoloading
     - PSR-0 autoloading
     - PSR-4 autoloading
+
+**PSR (PHP Standard Recommendation)**
+- are texts describing a common way to solve a specific problem. 
+- concerned with namespaces, class names and file paths.
+
+**autoload_classmap vs autoload_psr4**
+- autoload_classmap is faster than autoload_psr4 
+
+- autoload_psr4 is for development using composer dump-autoload
+- autoload_classmap is for production using composer dump-autoload -o
+
+- autoload_classmap returns class directly from array. If class is not found in array then resolve using autoload_psr4
+- autoload_psr4 resolve class using psr4 mapping
     
 ### REQUEST LIFE CYCLE
 - First the requests are directed to `public/index.php` by your web server (Apache / Nginx) configuration
