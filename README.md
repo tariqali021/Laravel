@@ -122,59 +122,58 @@
 
 ### Laravle Built-in Packages
 
-#### Laravel Jetstream
-- Designed application Starter kit for fresh laravel application.
-- This provides the implementation for your application's login, registration, email verification, two-factor authentication, session management, API via Laravel Sanctum, and optional team management features.
+  - #### Laravel Jetstream
+    - Designed application Starter kit for fresh laravel application.
+    - This provides the implementation for your application's login, registration, email verification, two-factor authentication, session management, API via Laravel Sanctum, and optional team management features.
 
-#### Laravel Telescope
-- Laravel Telescope is an elegant debug assistant for the Laravel framework.
-- provides insight into the requests coming into your application, exceptions, log entries, database queries, queued jobs, mail, notifications, cache operations, scheduled tasks, variable dumps and more.
+  - #### Laravel Telescope
+    - Laravel Telescope is an elegant debug assistant for the Laravel framework.
+    - provides insight into the requests coming into your application, exceptions, log entries, database queries, queued jobs, mail, notifications, cache operations, scheduled tasks, variable dumps and more.
 
-#### Laravel Socialite
--  Laravel Socialite provides a simple, convenient way to authenticate with OAuth providers like Facebook, Twitter, LinkedIn, Google, GitHub, GitLab, and Bitbucket.
+  - #### Laravel Socialite
+    -  Laravel Socialite provides a simple, convenient way to authenticate with OAuth providers like Facebook, Twitter, LinkedIn, Google, GitHub, GitLab, and Bitbucket.
 
-#### Laravel Scout
-- Laravel Scout provides a simple, driver based solution for adding full-text search to your Eloquent models. Using model observers.
-- This will automatically keep your search indexes in sync with your Eloquent records.
-- Currently, Scout ships with an _Algolia driver_ however, writing custom drivers is simple and you are free to extend Scout with your own search implementations.
-- **Full Text Search** is a comprehensive search method that compares every word of the search request against every word within the document or database. It lets the user find a word or phrase anywhere within the database or document.  A full-text query returns any documents that contain at least one word match.
-- **Algolia** is a hosted search engine capable of delivering real-time results from the first keystroke. 
+  - #### Laravel Scout
+    - Laravel Scout provides a simple, driver based solution for adding full-text search to your Eloquent models. Using model observers.
+    - This will automatically keep your search indexes in sync with your Eloquent records.
+    - Currently, Scout ships with an _Algolia driver_ however, writing custom drivers is simple and you are free to extend Scout with your own search implementations.
+    - **Full Text Search** is a comprehensive search method that compares every word of the search request against every word within the document or database. It lets the user find a word or phrase anywhere within the database or document.  A full-text query returns any documents that contain at least one word match.
+    - **Algolia** is a hosted search engine capable of delivering real-time results from the first keystroke. 
 
-#### Laravel Passport
-- Laravel Passport provides a full OAuth2 server implementation for your Laravel application.
-- If your application absolutely needs to support OAuth2, then you should use Laravel Passport.
-- if you are attempting to authenticate a single-page application, mobile application, or issue API tokens, you should use Laravel Sanctum. Laravel Sanctum does not support OAuth2
+  - #### Laravel Passport
+    - Laravel Passport provides a full OAuth2 server implementation for your Laravel application.
+    - If your application absolutely needs to support OAuth2, then you should use Laravel Passport.
+    - if you are attempting to authenticate a single-page application, mobile application, or issue API tokens, you should use Laravel Sanctum. Laravel Sanctum does not support OAuth2
 
-#### Laravel Envoyer (Deployment Management)
-- Envoyer is Platform as a Service (PaaS) to deploy PHP and Laravel applications with zero downtime.
-- Easy rollbacks in case of any crash while deployment.
+  - #### Laravel Envoyer (Deployment Management)
+    - Envoyer is Platform as a Service (PaaS) to deploy PHP and Laravel applications with zero downtime.
+    - Easy rollbacks in case of any crash while deployment.
 
-#### Laravel Forge (Server Management)
-- Laravel Forge is Deployment as a Service.
-- will go offline while deployemnt.(No zero downtime)
-- Laravel Forge is a server management and site deployment service. This provides a GUI for server management.
-- It can be used to automate the deployment of any web application that uses a PHP server.
-- Instead of installing each component like NGINX, MySQL, Redis and PHP to run web app, You can automate all these installations & configurations using Laravel Forge.
-- You will manually scale servers.
-- Forge can do a variety of things: add sub-domains, install SSL certificates, create queue workers, create Cron jobs, etc.
-- This can create and manage servers on the following server providers like DigitalOcean, AWS.
-- Forge also supports the ability to use your own custom server. There is an option for that _Custom VPS_.
+  - #### Laravel Forge (Server Management)
+    - Laravel Forge is Deployment as a Service.
+    - will go offline while deployemnt.(No zero downtime)
+    - Laravel Forge is a server management and site deployment service. This provides a GUI for server management.
+    - It can be used to automate the deployment of any web application that uses a PHP server.
+    - Instead of installing each component like NGINX, MySQL, Redis and PHP to run web app, You can automate all these installations & configurations using Laravel Forge.
+    - You will manually scale servers.
+    - Forge can do a variety of things: add sub-domains, install SSL certificates, create queue workers, create Cron jobs, etc.
+    - This can create and manage servers on the following server providers like DigitalOcean, AWS.
+    - Forge also supports the ability to use your own custom server. There is an option for that _Custom VPS_.
 
-#### Laravel Vapor 
-- Laravel Vapor is an auto-scaling, serverless deployment platform for Laravel, powered by `AWS Lambda`.
-- You can manage your Laravel infrastructure on Vapor.
-- Some features are Auto-scaling, Zero-downtime deployments, Redis, Database & DNS Management, File uploads on S3.
-  
-  **NOTES**
-  - _Create Vapor Account_ before integrating Vapor into your application. 
-  - _Install Vapor CLI_ to deploy your Laravel Vapor applications using the Vapor CLI.
-  - _Install Vapor core package_ that contains various Vapor runtime files and a service provider to allow your application to run on Vapor. 
-  - _Link with AWS_ using an an active AWS account on your team's settings management page in order to deploy projects or create other resources using Vapor.
+  - #### Laravel Vapor 
+    - Laravel Vapor is an auto-scaling, serverless deployment platform for Laravel, powered by `AWS Lambda`.
+    - You can manage your Laravel infrastructure on Vapor.
+    - Some features are Auto-scaling, Zero-downtime deployments, Redis, Database & DNS Management, File uploads on S3.
+    - **NOTES**
+      - _Create Vapor Account_ before integrating Vapor into your application. 
+      - _Install Vapor CLI_ to deploy your Laravel Vapor applications using the Vapor CLI.
+      - _Install Vapor core package_ that contains various Vapor runtime files and a service provider to allow your application to run on Vapor. 
+      - _Link with AWS_ using an an active AWS account on your team's settings management page in order to deploy projects or create other resources using Vapor.
 
-  #### Laravel Homestead (Development Envirenment)
-  - _Vagrant_ is an open-source software product for building and maintaining portable virtual software development environments; e.g., for VirtualBox, KVM, Hyper-V, Docker containers, VMware, and AWS
-  - _Vagrant Boxes_ are the package format for Vagrant environments. A box can be used by anyone on any platform that Vagrant supports to bring up an identical working environment.
-  - _Laravel Homestead_ is a pre-packaged Vagrant box that provides you a wonderful development environment without requiring you to install PHP, a web server, and any other server software on your local machine. 
+  - #### Laravel Homestead (Development Envirenment)
+    - _Vagrant_ is an open-source software product for building and maintaining portable virtual software development environments; e.g., for VirtualBox, KVM, Hyper-V, Docker containers, VMware, and AWS
+    - _Vagrant Boxes_ are the package format for Vagrant environments. A box can be used by anyone on any platform that Vagrant supports to bring up an identical working environment.
+    - _Laravel Homestead_ is a pre-packaged Vagrant box that provides you a wonderful development environment without requiring you to install PHP, a web server, and any other server software on your local machine. 
 
   **Serverless**
   Serverless computing (or serverless for short), is an execution model where the cloud provider (AWS, Azure, or Google Cloud) is responsible for executing a piece of code by dynamically allocating the resources. And only charging for the amount of resources used to run the code. The code is typically run inside stateless containers that can be triggered by a variety of events including http requests, database events, queuing services, monitoring alerts, file uploads, scheduled events (cron jobs), etc. The code that is sent to the cloud provider for execution is usually in the form of a function.
