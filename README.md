@@ -886,7 +886,7 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
 
 - ### Interview Questions
 
-    ```markdown
+```markdown
     **Q1: What is the difference between `queue:work` and `queue:listen`, and which one is better for production?**
     **Answer:**
     `queue:work` is a long-running process that boots Laravel once and keeps executing jobs. 
@@ -981,7 +981,7 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
     6. On success → deleted  
     7. On failure → retried or marked failed  
     8. `failed()` method triggers if retries exhausted
-    ```
+```
     
 ### 🧩 7. Laravel Security Best Practices — Key Measures & Real-World Usage
 
@@ -1119,7 +1119,7 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
 
 - ### Interview Questions
 
-    ```markdown
+```markdown
     **Q1: How does Laravel protect against CSRF attacks?**  
     **Answer:** Laravel generates a CSRF token per session and verifies it on form submission using middleware. It's added via `@csrf` or using the `X-CSRF-TOKEN` header in JS requests.
     
@@ -1143,7 +1143,7 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
     
     **Q8: How does Laravel ensure incoming request data is valid and safe?**  
     **Answer:** With `validate()` method or custom `FormRequest` classes that use validation rules. You can also sanitize inputs before saving.
-    ```
+```
 
 ### 🧩 8. Architecture & Design Patterns in Laravel
 
