@@ -3,7 +3,7 @@
 - Dependency Injection (DI) is a design pattern in which an object receives its dependencies (other objects it needs to work) from the outside, rather than creating them itself.
 - DI is the ability to swap implementations of the injected class. useful during testing
   
-#### SERVICE CONTAINER
+#### Service Container
 - an approach for managing class dependencies and performing dependency injection.
 - injected class can be bind in the service provider to tell which class instance to return
 - useful to bind an interface with any class/service implementation.
@@ -50,7 +50,7 @@ $this->app->when(VideoController::class)
 - Atter all bindings registered in service provider, you can resolve class instance from container using `$app->method` `make('name_of_class_or_interface')` or helper `resolve('name_of_class_or_interface')`
 
 
-### SERVICE PROVIDER
+### Service Provider
 - ServiceProviders are the simple classes that are used to register things like registering service_containers, events, middlewares etc for the framework.
 - This is a central place for your application that decides bindings for the service being provided and
   boot all registered services.           
@@ -65,7 +65,7 @@ $this->app->when(VideoController::class)
 - Deffer the provider (Lazy Load) if just there are only bindings in service provider. This will improve performance. Laravel will load this provider only when you resolve thsi service
 - The `provider` method is used for deffered laoding which will return array_of_service_container_bindings registered by this provider
 
-### FACADES
+### Facades
 - Facades provide a "static" interface to classes that are available in the application's service container. 
 - Facades serve as "static proxies", provides short syntax
 - Facades use dynamic methods to proxy method calls to objects resolved from the service container
@@ -76,7 +76,7 @@ $this->app->when(VideoController::class)
 - Facade class defines the method getFacadeAccessor(). This method's job is to return the name of a service container binding. 
 - When a user references any static method on the Cache facade, Laravel resolves the cache binding from the service container and runs the requested method against that object.
 
-### AUTOLOADING
+### Autoloading
 - to load files automatically from storage when needed
 - when you use a class in your application, the autoloader checks if it’s already loaded, and if not, the autoloader loads the necessary class into memory. So the class is loaded on the fly where it’s needed—this is called autoloading
 - When you’re using autoloading, you don’t need to include all the library files manually; you just need to include the autoloader file which contains the logic of autoloading, and the necessary classes will be included dynamically.
@@ -103,7 +103,7 @@ $this->app->when(VideoController::class)
 - autoload_classmap returns class directly from array. If class is not found in array then resolve using autoload_psr4
 - autoload_psr4 resolve class using psr4 mapping
     
-### REQUEST LIFE CYCLE
+### Request Life Cycle
 - First the requests are directed to `public/index.php` by your web server (Apache / Nginx) configuration
 - Next The `index.php` file loads the Composer generated autoloader definition, and then retrieves an instance of the Laravel application from `bootstrap/app.php`.
 - Next, the incoming request is sent to either the HTTP kernel or the console kernel, depending on the type of request that is entering the application. (kernels serve as the central location that all requests flow)
@@ -197,12 +197,16 @@ Serverless computing (or serverless for short), is an execution model where the 
 - **Be aware of n+1 database queries.** Means you get the models & then loop through the models to get it's relaion model that will execute individual query in loop.
 This is also called as **lazy loading**. To optimize this use **eager loading** using method **with('*relation_model*')** that will get the related models in single query using **joins**. 
 
-- **Cache the configuration.** Means laravel boots everything & parse all configuration files on each request. Loading configurations on each request will slow the request time.
+- **Cache Configurations.** Means laravel boots everything & parse all configuration files on each request. Loading configurations on each request will slow the request time.
 To optimize this use **php artisan config:cache** command that will combine all configuration files into one config file. Larvel will read only this config file on each request 
 & hence it's faster than reading all configuration files. By using this approach, **env()** method will return null except the config files so be aware of that. To undo this behaviour use command **php artisan cache:clear**.
 
-- **Reduce autoloaded services.** Means laravel loads a ton of services from **config/app.php** on each request. You can optimize request by commenting out unneeded services.
-This is suitable for API's where we don't need AuthServiceProvider, ViewServiceProvider etc.
+- **Cache Routes.** Means this is the same as caching config. Request time increases when laravel read from route files if you have no. of route files. You can optimize this by caching the routes that will end up with single route file. 
+Use **php artisan route:cache** to cache the routes & undo this using command **php artisan route:clear**.
+
+- **Cache Queries.** Means it will take same time each time request is for same action. You can optimize this by caching the repeated or static queries results using laravel built-in caching feature. caching means precomputing and storing expensive results (expensive in terms of CPU and memory usage), and simply returning them when the same query is repeated.
+
+- **Prefer in-memory caching.**. Means using cache can optimize request time. Using laravel built-in caching system will store the cached result in the file if you do not use any in-memory cache like Redis, Memcached. You can optimize request or query results time using in-memory caching system that stores the results in RAM. RAM is 10-20 times faster than SSD that's why still in-memory caching is preferable. 100,000 read operations per second are common using Redis.
 
 - **Be wise with middleware stacks.** Means be aware of the middleware stacks like **web, api** in **app/Http/kernel.php**. If you have large application, these middlware become
 silent burden for the request if there's no business reason for them. You can optimize this by applying selectively middlwares to requests if possible because adding something globally is convenient but there can be performance issue.
@@ -210,14 +214,8 @@ silent burden for the request if there's no business reason for them. You can op
 - **Avoid the ORM (at times).** Means laravel do alot work hen you query using the eloquent model. It will create new models & set all the attributes for each model when we query forlarge no of requests.
 1000 records means 100 models with all attributes set. You can optimize this using **DB::raw()** for larger or complex queries.
 
-- **Use caching as much as possible.** Means it will take same time each time request is for same action. You can optimize this by caching the repeated or static queries results using laravel built-in caching feature. caching means precomputing and storing expensive results (expensive in terms of CPU and memory usage),
-and simply returning them when the same query is repeated.
-
-- **Prefer in-memory caching.**. Means using cache can optimize request time. Using laravel built-in caching system will store the cached result in the file if you do not use any in-memory cache like Redis, Memcached. You can optimize 
-request or query results time using in-memory caching system that stores the results in RAM. RAM is 10-20 times faster than SSD that's why still in-memory caching is preferable. 100,000 read operations per second are common using Redis.
-
-- **Cache the routes.** Means this is the same as caching config. Request time increases when laravel read from route files if you have no. of route files. You can optimize this by caching the routes that will end up with single route file. 
-Use **php artisan route:cache** to cache the routes & undo this using command **php artisan route:clear**.
+- **Reduce autoloaded services.** Means laravel loads a ton of services from **config/app.php** on each request. You can optimize request by commenting out unneeded services.
+This is suitable for API's where we don't need AuthServiceProvider, ViewServiceProvider etc.
 
 - **Using Autoloader optimization.** Means it takes time to find and include classes by a given namespace string takes time. You can optimize this on production using command **composer install --optimize-autoloader --no-dev**
 
