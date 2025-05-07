@@ -50,7 +50,7 @@
   - Atter all bindings registered in service provider, you can resolve class instance from container using `$app->method` `make('name_of_class_or_interface')` or helper  `resolve('name_of_class_or_interface')`
 
 
-### 3. Service Provider
+#### 3. Service Provider
 - ServiceProviders are the simple classes that are used to register things like registering service_containers, events, middlewares etc for the framework.
 - This is a central place for your application that decides bindings for the service being provided and
   boot all registered services.           
@@ -65,7 +65,7 @@
   - Deffer the provider (Lazy Load) if just there are only bindings in service provider. This will improve performance. Laravel will load this provider only when you resolve thsi service
   - The `provider` method is used for deffered laoding which will return array_of_service_container_bindings registered by this provider
 
-### 4. Facades
+#### 4. Facades
 - Facades provide a "static" interface to classes that are available in the application's service container. 
 - Facades serve as "static proxies", provides short syntax
 - Facades use dynamic methods to proxy method calls to objects resolved from the service container
@@ -76,7 +76,7 @@
   - Facade class defines the method getFacadeAccessor(). This method's job is to return the name of a service container binding. 
   - When a user references any static method on the Cache facade, Laravel resolves the cache binding from the service container and runs the requested method against that object.
 
-### 5. Autoloading
+#### 5. Autoloading
 - to load files automatically from storage when needed
 - when you use a class in your application, the autoloader checks if it’s already loaded, and if not, the autoloader loads the necessary class into memory. So the class is loaded on the fly where it’s needed—this is called autoloading
 - When you’re using autoloading, you don’t need to include all the library files manually; you just need to include the autoloader file which contains the logic of autoloading, and the necessary classes will be included dynamically.
@@ -103,7 +103,7 @@
   - autoload_classmap returns class directly from array. If class is not found in array then resolve using autoload_psr4
   - autoload_psr4 resolve class using psr4 mapping
     
-### Request Life Cycle
+#### Request Life Cycle
 - First the requests are directed to `public/index.php` by your web server (Apache / Nginx) configuration
 - Next The `index.php` file loads the Composer generated autoloader definition, and then retrieves an instance of the Laravel application from `bootstrap/app.php`.
 - Next, the incoming request is sent to either the HTTP kernel or the console kernel, depending on the type of request that is entering the application. (kernels serve as the central location that all requests flow)
@@ -113,42 +113,43 @@
 - Next after passing through middlewares, router or controller method will be executed that will return response.
 - Next the response will travel back through router middleware by giving a chance to modify response, the HTTP kernel's handle method returns the response object and the `index.php` file calls the `send` method on the returned response. The `send` method sends the response content to the user's web browser.
  
-### Modular approach in Laravel
+#### Modular approach in Laravel
 - Means subdividing your projects in smaller parts.
 - Usefull for larger applications because each feature/module has it's own folder containing controllers, models, routes, views.
 - Usefull if you want to reuse that feature/module in some other application.
 - Done via autoloaidng Module folder or registering views, configurations, controllers manually.
 - Done via any pre developed packages.
 
-### Laravel Jetstream
+### Laravle Built-in Packages
+
+#### Laravel Jetstream
 - Designed application Starter kit for fresh laravel application.
 - This provides the implementation for your application's login, registration, email verification, two-factor authentication, session management, API via Laravel Sanctum, and optional team management features.
 
-### Laravel Telescope
+#### Laravel Telescope
 - Laravel Telescope is an elegant debug assistant for the Laravel framework.
 - provides insight into the requests coming into your application, exceptions, log entries, database queries, queued jobs, mail, notifications, cache operations, scheduled tasks, variable dumps and more.
 
-### Laravel Socialite
+#### Laravel Socialite
 -  Laravel Socialite provides a simple, convenient way to authenticate with OAuth providers like Facebook, Twitter, LinkedIn, Google, GitHub, GitLab, and Bitbucket.
 
-### Laravel Scout
+#### Laravel Scout
 - Laravel Scout provides a simple, driver based solution for adding full-text search to your Eloquent models. Using model observers.
 - This will automatically keep your search indexes in sync with your Eloquent records.
 - Currently, Scout ships with an _Algolia driver_ however, writing custom drivers is simple and you are free to extend Scout with your own search implementations.
 - **Full Text Search** is a comprehensive search method that compares every word of the search request against every word within the document or database. It lets the user find a word or phrase anywhere within the database or document.  A full-text query returns any documents that contain at least one word match.
 - **Algolia** is a hosted search engine capable of delivering real-time results from the first keystroke. 
 
-### Laravel Passport
+#### Laravel Passport
 - Laravel Passport provides a full OAuth2 server implementation for your Laravel application.
 - If your application absolutely needs to support OAuth2, then you should use Laravel Passport.
 - if you are attempting to authenticate a single-page application, mobile application, or issue API tokens, you should use Laravel Sanctum. Laravel Sanctum does not support OAuth2
 
-### Laravel Envoyer (Deployment Management)
+#### Laravel Envoyer (Deployment Management)
 - Envoyer is Platform as a Service (PaaS) to deploy PHP and Laravel applications with zero downtime.
 - Easy rollbacks in case of any crash while deployment.
 
-### Laravel Forge (Server Management)
-
+#### Laravel Forge (Server Management)
 - Laravel Forge is Deployment as a Service.
 - will go offline while deployemnt.(No zero downtime)
 - Laravel Forge is a server management and site deployment service. This provides a GUI for server management.
@@ -159,28 +160,27 @@
 - This can create and manage servers on the following server providers like DigitalOcean, AWS.
 - Forge also supports the ability to use your own custom server. There is an option for that _Custom VPS_.
 
-### Laravel Vapor 
-
+#### Laravel Vapor 
 - Laravel Vapor is an auto-scaling, serverless deployment platform for Laravel, powered by `AWS Lambda`.
 - You can manage your Laravel infrastructure on Vapor.
 - Some features are Auto-scaling, Zero-downtime deployments, Redis, Database & DNS Management, File uploads on S3.
+  
+  **NOTES**
+  - _Create Vapor Account_ before integrating Vapor into your application. 
+  - _Install Vapor CLI_ to deploy your Laravel Vapor applications using the Vapor CLI.
+  - _Install Vapor core package_ that contains various Vapor runtime files and a service provider to allow your application to run on Vapor. 
+  - _Link with AWS_ using an an active AWS account on your team's settings management page in order to deploy projects or create other resources using Vapor.
 
-**NOTES**
-- _Create Vapor Account_ before integrating Vapor into your application. 
-- _Install Vapor CLI_ to deploy your Laravel Vapor applications using the Vapor CLI.
-- _Install Vapor core package_ that contains various Vapor runtime files and a service provider to allow your application to run on Vapor. 
-- _Link with AWS_ using an an active AWS account on your team's settings management page in order to deploy projects or create other resources using Vapor.
+  #### Laravel Homestead (Development Envirenment)
+  - _Vagrant_ is an open-source software product for building and maintaining portable virtual software development environments; e.g., for VirtualBox, KVM, Hyper-V, Docker containers, VMware, and AWS
+  - _Vagrant Boxes_ are the package format for Vagrant environments. A box can be used by anyone on any platform that Vagrant supports to bring up an identical working environment.
+  - _Laravel Homestead_ is a pre-packaged Vagrant box that provides you a wonderful development environment without requiring you to install PHP, a web server, and any other server software on your local machine. 
 
-### Laravel Homestead (Development Envirenment)
-- _Vagrant_ is an open-source software product for building and maintaining portable virtual software development environments; e.g., for VirtualBox, KVM, Hyper-V, Docker containers, VMware, and AWS
-- _Vagrant Boxes_ are the package format for Vagrant environments. A box can be used by anyone on any platform that Vagrant supports to bring up an identical working environment.
-- _Laravel Homestead_ is a pre-packaged Vagrant box that provides you a wonderful development environment without requiring you to install PHP, a web server, and any other server software on your local machine. 
-
-**Serverless**
-Serverless computing (or serverless for short), is an execution model where the cloud provider (AWS, Azure, or Google Cloud) is responsible for executing a piece of code by dynamically allocating the resources. And only charging for the amount of resources used to run the code. The code is typically run inside stateless containers that can be triggered by a variety of events including http requests, database events, queuing services, monitoring alerts, file uploads, scheduled events (cron jobs), etc. The code that is sent to the cloud provider for execution is usually in the form of a function.
-
-**AWS Lambda** is a serverless compute service that lets you run code without provisioning or managing servers.
-**OAuth 2.0** is the industry-standard protocol for authorization.
+  **Serverless**
+  Serverless computing (or serverless for short), is an execution model where the cloud provider (AWS, Azure, or Google Cloud) is responsible for executing a piece of code by dynamically allocating the resources. And only charging for the amount of resources used to run the code. The code is typically run inside stateless containers that can be triggered by a variety of events including http requests, database events, queuing services, monitoring alerts, file uploads, scheduled events (cron jobs), etc. The code that is sent to the cloud provider for execution is usually in the form of a function.
+  
+  **AWS Lambda** is a serverless compute service that lets you run code without provisioning or managing servers.
+  **OAuth 2.0** is the industry-standard protocol for authorization.
 
 
 **These are quick notes to revise optimization techniques. Full explanation can be found a https://geekflare.com/laravel-optimization/**
