@@ -1,6 +1,9 @@
 
-#### SERVICE CONTAINER
+#### Dependency injection
+- Dependency Injection (DI) is a design pattern in which an object receives its dependencies (other objects it needs to work) from the outside, rather than creating them itself.
 - DI is the ability to swap implementations of the injected class. useful during testing
+  
+#### SERVICE CONTAINER
 - an approach for managing class dependencies and performing dependency injection.
 - injected class can be bind in the service provider to tell which class instance to return
 - useful to bind an interface with any class/service implementation.
