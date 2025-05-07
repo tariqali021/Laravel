@@ -896,54 +896,52 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
     **Q2: How do retries and backoff work in Laravel queues?**
     **Answer:**
     Each job can define `$tries`, `$timeout`, and `backoff()`:
-    ```php
+    
     public $tries = 5;
     public $timeout = 30;
     public function backoff() {
         return [5, 30, 60];
     }
-    ```
+    
     Jobs retry based on configuration. After max tries, they're marked as failed.
     
     **Q3: How do you prevent the same job from running multiple times concurrently?**
     **Answer:**
     Use `WithoutOverlapping` middleware:
-    ```php
+    
     public function middleware() {
         return [new WithoutOverlapping($this->userId)];
     }
-    ```
+    
     Or use `ShouldBeUnique` to avoid duplicate job instances.
     
     **Q4: How do you implement rate limiting for queue jobs?**
     **Answer:**
     Use `RateLimited` middleware:
-    ```php
+    
     public function middleware() {
         return [
             (new RateLimited('stripe'))->everySeconds(60)->allow(5)
         ];
     }
-    ```
     
     **Q5: What is the purpose of the `failed()` method inside a job class?**
     **Answer:**
     It's a lifecycle hook triggered after all retries are exhausted:
-    ```php
+    
     public function failed(Exception $e) {
         Log::error("Job failed", ['error' => $e->getMessage()]);
     }
-    ```
     
     **Q6: How do you track and manage batch jobs in Laravel?**
     **Answer:**
     Use `Bus::batch([...])` with lifecycle hooks:
-    ```php
+    
     Bus::batch([
         new ExportUsers,
         new EmailAdmins,
     ])->then(fn() => Log::info('Batch done'))->dispatch();
-    ```
+    
     Supports `then`, `catch`, `finally`, and progress tracking.
     
     **Q7: How does Laravel Horizon monitor queues, and what’s unique about it?**
@@ -960,20 +958,18 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
     **Answer:**
     - `onQueue('emails')`: assigns the job to a specific queue channel  
     - `onConnection('redis')`: assigns the job to a specific queue backend  
-    ```php
+    
     SomeJob::dispatch()->onConnection('redis')->onQueue('emails');
-    ```
     
     **Q9: How do you ensure job uniqueness or prevent duplication in Laravel?**
     **Answer:**
     Use `ShouldBeUnique` interface with `uniqueId()`:
-    ```php
+    
     class ProcessReport implements ShouldQueue, ShouldBeUnique {
         public function uniqueId() {
             return $this->reportId;
         }
     }
-    ```
     
     **Q10: What happens under the hood when a job is dispatched in Laravel?**
     **Answer:**
