@@ -1,9 +1,9 @@
 
-#### Dependency injection
+#### 1. Dependency injection
 - Dependency Injection (DI) is a design pattern in which an object receives its dependencies (other objects it needs to work) from the outside, rather than creating them itself.
 - DI is the ability to swap implementations of the injected class. useful during testing
   
-#### Service Container
+#### 2. Service Container
 - an approach for managing class dependencies and performing dependency injection.
 - injected class can be bind in the service provider to tell which class instance to return
 - useful to bind an interface with any class/service implementation.
@@ -50,7 +50,7 @@ $this->app->when(VideoController::class)
 - Atter all bindings registered in service provider, you can resolve class instance from container using `$app->method` `make('name_of_class_or_interface')` or helper `resolve('name_of_class_or_interface')`
 
 
-### Service Provider
+### 3. Service Provider
 - ServiceProviders are the simple classes that are used to register things like registering service_containers, events, middlewares etc for the framework.
 - This is a central place for your application that decides bindings for the service being provided and
   boot all registered services.           
@@ -65,7 +65,7 @@ $this->app->when(VideoController::class)
 - Deffer the provider (Lazy Load) if just there are only bindings in service provider. This will improve performance. Laravel will load this provider only when you resolve thsi service
 - The `provider` method is used for deffered laoding which will return array_of_service_container_bindings registered by this provider
 
-### Facades
+### 4. Facades
 - Facades provide a "static" interface to classes that are available in the application's service container. 
 - Facades serve as "static proxies", provides short syntax
 - Facades use dynamic methods to proxy method calls to objects resolved from the service container
@@ -76,7 +76,7 @@ $this->app->when(VideoController::class)
 - Facade class defines the method getFacadeAccessor(). This method's job is to return the name of a service container binding. 
 - When a user references any static method on the Cache facade, Laravel resolves the cache binding from the service container and runs the requested method against that object.
 
-### Autoloading
+### 5. Autoloading
 - to load files automatically from storage when needed
 - when you use a class in your application, the autoloader checks if it’s already loaded, and if not, the autoloader loads the necessary class into memory. So the class is loaded on the fly where it’s needed—this is called autoloading
 - When you’re using autoloading, you don’t need to include all the library files manually; you just need to include the autoloader file which contains the logic of autoloading, and the necessary classes will be included dynamically.
@@ -193,7 +193,7 @@ Serverless computing (or serverless for short), is an execution model where the 
 - **Hardware level** means hosting provider where your app is hosted.
 
 
-### Laravel App Optimization
+### 6. Laravel App Optimization
 - **Be aware of n+1 database queries.** Means you get the models & then loop through the models to get it's relaion model that will execute individual query in loop.
 This is also called as **lazy loading**. To optimize this use **eager loading** using method **with('*relation_model*')** that will get the related models in single query using **joins**. 
 
