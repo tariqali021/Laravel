@@ -886,7 +886,6 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
 
 - ### Interview Questions
 
-```markdown
     **Q1: What is the difference between `queue:work` and `queue:listen`, and which one is better for production?**
     **Answer:**
     `queue:work` is a long-running process that boots Laravel once and keeps executing jobs. 
@@ -981,7 +980,6 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
     6. On success → deleted  
     7. On failure → retried or marked failed  
     8. `failed()` method triggers if retries exhausted
-```
     
 ### 🧩 7. Laravel Security Best Practices — Key Measures & Real-World Usage
 
@@ -1119,7 +1117,6 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
 
 - ### Interview Questions
 
-```markdown
     **Q1: How does Laravel protect against CSRF attacks?**  
     **Answer:** Laravel generates a CSRF token per session and verifies it on form submission using middleware. It's added via `@csrf` or using the `X-CSRF-TOKEN` header in JS requests.
     
@@ -1143,7 +1140,6 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
     
     **Q8: How does Laravel ensure incoming request data is valid and safe?**  
     **Answer:** With `validate()` method or custom `FormRequest` classes that use validation rules. You can also sanitize inputs before saving.
-```
 
 ### 🧩 8. Architecture & Design Patterns in Laravel
 
@@ -1232,7 +1228,7 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
     - Enforce rules inside domain model, not in controllers or services
 
 - ### Interview Questions
-    ```markdown
+
     **Q1: What is the benefit of using Hexagonal architecture in Laravel apps?**  
     **Answer:** It decouples the business logic from frameworks and delivery mechanisms. This makes it easier to test, replace external systems, and improve maintainability.
     
@@ -1256,7 +1252,6 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
     
     **Q8: What is the difference between Entity and Value Object in DDD?**  
     **Answer:** Entities have identity (like ID), value objects don’t. Value objects are immutable and compared by value.
-    ```
     
 ### 🧩 9. Tooling and Ecosystem
 
@@ -1401,7 +1396,7 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
     - Combine with `php artisan clear-compiled`
 
 - ### Interview Questions
-    ```markdown
+
     **Q1: What is Laravel Telescope used for?**  
     **Answer:** It's a debugging tool to monitor requests, queries, jobs, exceptions, events, and more in real-time. Ideal for development.
     
@@ -1419,7 +1414,6 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
     
     **Q6: Why use Laravel Envoy or Vapor?**  
     **Answer:** Envoy automates SSH deployment tasks. Vapor handles serverless Laravel deployments via AWS Lambda.
-    ```
 
 ### 🧩 10. Testing in Laravel — Feature-Level & TDD Mastery
 
@@ -1523,7 +1517,7 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
     ```
 
 - ### Interview Questions
-    ```markdown
+
     **Q1: What's the difference between unit and feature testing in Laravel?**  
     **Answer:** Unit tests check isolated logic (functions/classes), while feature tests validate multiple layers (routes, DB, views).
     
@@ -1538,7 +1532,6 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
     
     **Q5: What does `Notification::fake()` do in tests?**  
     **Answer:** Prevents actual notifications and allows you to assert if they were sent and to whom.
-    ```
 
 ### 🧩 11. Caching Strategies — Performance, Persistence, and Optimization
 
@@ -1629,7 +1622,7 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
     - Consider serializing objects for nested hydration
 
 - ### Interview Questions
-    ```markdown
+    
     **Q1: What are Laravel’s supported cache drivers?**
     **Answer:** File, Redis, Memcached, Array, and Database.
     
@@ -1644,7 +1637,6 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
     
     **Q5: How would you handle cache warm-up in Laravel?**
     **Answer:** Use scheduled tasks in `Console\Kernel` to populate frequent data or preload on deployment using custom Artisan commands.
-    ```
     
 ### 🧩 12. API Versioning (Laravel 11+)
 
@@ -1693,7 +1685,7 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
     ```
 
 - ### Interview Questions
-    ```markdown
+    
     **Q1: Why use API versioning in Laravel?**
     **Answer:** It ensures backward compatibility and allows multiple API versions to coexist without breaking existing clients.
     
@@ -1705,7 +1697,6 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
     
     **Q4: What challenges arise in versioning APIs?**
     **Answer:** Duplication of logic, difficult testing, keeping shared logic DRY, and managing deprecations.
-    ```
     
 ### 🧩 13. Laravel Optimization Techniques — Performance, Scalability, and Efficiency
 
@@ -1798,7 +1789,7 @@ Use **php artisan route:cache** to cache the routes & undo this using command **
     - Never keep `barryvdh/laravel-debugbar` in production environment.
 
 - ### Interview Questions
-    ```markdown
+    
     **Q1: How does `php artisan route:cache` improve performance?**
     **Answer:** It compiles all route definitions into a single file so that routes don’t have to be loaded on each request.
     
