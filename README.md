@@ -157,7 +157,228 @@
 - Next the request will be handed off to the router for dispatching. Also the router will run any route specific middleware.
 - Next after passing through middlewares, router or controller method will be executed that will return response.
 - Next the response will travel back through router middleware by giving a chance to modify response, the HTTP kernel's handle method returns the response object and the `index.php` file calls the `send` method on the returned response. The `send` method sends the response content to the user's web browser.
- 
+
+
+#### Q1) How does **implicit vs explicit route model binding** work in Laravel?
+- **Implicit**: Laravel auto-resolves params to models if names match (ID-based).  
+- **Explicit**: You define custom resolution (e.g., slug, UUID, non-id keys).  
+
+**Usage**
+```php
+// Implicit
+Route::get('/users/{user}', fn(User $user) => $user);
+// Visiting /users/5 → User::findOrFail(5)
+
+// Explicit
+Route::bind('post', fn($value) => Post::where('slug',$value)->firstOrFail());
+Route::get('/posts/{post}', fn(Post $post) => $post);
+// Visiting /posts/hello-world → Post::where('slug','hello-world')->firstOrFail()
+```
+
+#### Q2) When should I use **middleware vs policies** for authorization?
+- **Middleware**: Best for request-level checks (authentication, roles, throttling) that apply before the controller runs.  
+- **Policy**: Best for model-level checks (CRUD rules) that depend on which user owns or can update a specific resource.  
+
+**Usage**
+```php
+// Middleware — request-level
+Route::get('/dashboard', fn() => 'Welcome')->middleware('auth');
+// Visiting /dashboard as guest → redirected to login before controller
+
+// Policy — model-level
+public function update(Request $request, Post $post) {
+    $this->authorize('update', $post);
+    $post->update($request->all());
+}
+// Visiting /posts/5/edit as unauthorized user → 403 Forbidden
+```
+
+#### Q3) What’s the difference between **eager loading, lazy loading, and lazy eager loading**?
+- **Lazy Loading**: Relationships load only when accessed → risk of N+1 queries.  
+- **Eager Loading**: Relationships are preloaded using `with()`, reducing queries.  
+- **Lazy Eager Loading**: Load relationships after fetching the models using `load()`.  
+
+**Usage**
+```php
+// Lazy Loading
+$users = User::all();
+foreach ($users as $user) {
+    echo $user->posts;
+}
+// Visiting this → runs 1 query for users + 1 query per user (N+1 problem)
+
+// Eager Loading
+$users = User::with('posts')->get();
+// Visiting this → runs 2 queries total: one for users, one for posts
+
+// Lazy Eager Loading
+$users = User::all();
+$users->load('posts');
+// Visiting this → runs 1 query for users + 1 query for posts
+```
+
+#### Q4) When should I use **Query Builder vs Eloquent ORM**?
+- **Eloquent**: Object-oriented, great for working with models, relationships, and business logic.  
+- **Query Builder**: Lightweight, faster, good for raw queries, complex joins, or reporting.  
+
+**Usage**
+```php
+// Eloquent ORM
+$users = User::where('active', 1)->get();
+// Visiting → returns a collection of User models
+
+// Query Builder
+$users = DB::table('users')->where('active', 1)->get();
+// Visiting → returns a collection of stdClass objects
+```
+
+#### Q5) How do you **optimize large queries** in Laravel?
+- **Chunking**: Process results in fixed-size batches, avoids memory overload.  
+- **Lazy Collections**: Stream records one-by-one, keeps memory flat.  
+- **Indexing**: Add database indexes to speed up lookups.  
+
+**Usage**
+```php
+// Chunking
+User::chunk(1000, function ($users) {
+    foreach ($users as $user) {
+        // Process batch of 1000 users
+    }
+});
+// Visiting → executes multiple queries in chunks
+
+// Lazy Collections
+User::lazy()->each(fn($user) => $user->process());
+// Visiting → loads one user at a time, low memory usage
+
+// Indexing
+CREATE INDEX idx_email ON users(email);
+// Visiting → email lookups become faster
+```
+
+#### Q6) When would you use **observers instead of events**?
+- **Observers**: Best for model lifecycle hooks (`created`, `updated`, `deleted`). Automatically triggered when Eloquent events fire.  
+- **Events**: Best for domain-driven or reusable actions that can be fired anywhere in the app.  
+
+**Usage**
+```php
+// Observer
+class UserObserver {
+    public function created(User $user) {
+        Mail::to($user)->send(new WelcomeMail());
+    }
+}
+User::observe(UserObserver::class);
+
+// Visiting /register
+// → After creating user, "created" observer runs → sends welcome email
+
+// Event
+event(new OrderPlaced($order));
+
+// Visiting checkout
+// → Fires OrderPlaced event, listeners (e.g., send confirmation, update stock)
+//   run independently of the model lifecycle
+```
+
+#### Q7) What’s the difference between **guards and providers**?
+- **Guard**: Defines *how* users are authenticated (e.g., session, token).  
+- **Provider**: Defines *where* users are retrieved from (Eloquent model or database table).  
+
+**Usage**
+```php
+// config/auth.php
+'guards' => [
+    'web' => ['driver' => 'session', 'provider' => 'users'],
+    'api' => ['driver' => 'token', 'provider' => 'users'],
+],
+'providers' => [
+    'users' => ['driver' => 'eloquent', 'model' => App\Models\User::class],
+];
+
+// Visiting /dashboard
+// → Uses "web" guard (session-based) + "users" provider (Eloquent User model)
+```
+
+#### Q8) How do **policies differ from gates** in Laravel?
+- **Gate**: Closure-based, simple checks for specific abilities. Good for small apps or one-off checks.  
+- **Policy**: Class that groups multiple authorization methods for a model. Best for organizing complex, model-related rules.  
+
+**Usage**
+```php
+// Gate (App\Providers\AuthServiceProvider)
+Gate::define('edit-post', fn(User $user, Post $post) => $user->id === $post->user_id);
+
+// Controller
+if (Gate::allows('edit-post', $post)) {
+    // User can edit the post
+}
+
+// Policy (App\Policies\PostPolicy.php)
+class PostPolicy {
+    public function update(User $user, Post $post) {
+        return $user->id === $post->user_id;
+    }
+}
+
+// Controller
+$this->authorize('update', $post);
+```
+
+#### Q10) How do you handle **multi-tenancy** in Laravel?
+- **Single Database (tenant_id column)**: All tenants share one DB, each row tagged with `tenant_id`.  
+- **Multiple Databases**: Each tenant has its own database, Laravel switches connections dynamically.  
+- **When**: Single DB is simpler, multi-DB offers stronger data isolation.  
+
+**Usage**
+```php
+// Single Database approach
+User::where('tenant_id', $tenant->id)->get();
+// Visiting → query scoped by tenant_id
+
+// Multiple Database approach
+config(['database.connections.tenant.database' => $tenant->db_name]);
+DB::connection('tenant')->table('users')->get();
+// Visiting → swaps DB connection per tenant
+```
+
+#### Q11) What are **view composers** and why use them?
+- **Definition**: Callbacks or classes that run when a view is rendered.  
+- **Why**: Share common data across multiple views without repeating logic in controllers.  
+- **Use cases**: Menus, settings, notifications, user info in layouts.  
+
+**Usage**
+```php
+// App\Providers\ViewServiceProvider.php
+public function boot() {
+    View::composer('layouts.app', function ($view) {
+        $view->with('categories', Category::all());
+    });
+}
+
+// Visiting /home
+// → When layouts.app is rendered, $categories is automatically available
+```
+
+#### Q12) What is **locking** in Laravel and why is it used?
+- **Definition**: A mechanism to prevent race conditions when multiple processes try to run the same code.  
+- **Why**: Ensures only one process executes critical sections (e.g., payments, inventory, job processing).  
+- **Types**:  
+  - Cache locks (Redis, Memcached)  
+  - Database-level locks  
+
+**Usage**
+```php
+// Using cache lock
+Cache::lock('process-orders', 10)->block(5, function () {
+    // Only one worker can run this code at a time
+    processOrders();
+});
+
+// Visiting multiple workers
+// → First worker acquires lock, others wait or fail if lock not released
+```
+
 #### Modular approach in Laravel
 - Means subdividing your projects in smaller parts.
 - Usefull for larger applications because each feature/module has it's own folder containing controllers, models, routes, views.
