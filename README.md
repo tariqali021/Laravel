@@ -1,80 +1,125 @@
 
-#### 1. Dependency injection
-- Dependency Injection (DI) is a design pattern in which an object receives its dependencies (other objects it needs to work) from the outside, rather than creating them itself.
-- DI is the ability to swap implementations of the injected class. useful during testing
-  
-#### 2. Service Container
-- an approach for managing class dependencies and performing dependency injection.
-- injected class can be bind in the service provider to tell which class instance to return
-- useful to bind an interface with any class/service implementation.
-- used to resolve sub-dependencies of the object we are building.  
-- resolving means returning an object of class with all it's dependencies. This is done by service container that keeps all the classes with their dependencies.
-- dependencies are resolved either by `make/resolve` methods or by typ-hinting in controller, events etc.
-
-  **Binding (simple, singleton, instance)**
-  - You can bind 
-      - simply a class using `bind('injected_class', 'returned_class or return_from_closure')`
-      - a singleton using `singleton('injected_class', 'return_class or return_from_closure')`
-      - an instance using `instance('injected_class', 'instance_of_class')`
-  
-  ````php 
-  $this->app->bind( 'App\Contracts\Logger' , 'App\Services\FileLogger')
-  
-  // This binding means that whenever "Logger" is injected in any class implementation it will return the object of "FileLogger"
-  
-  public function __construct(App\Contracts\Logger $logger){
-      // $logger is the instance of FileLogger class here
+#### 1. Dependency Injection
+- **Definition**: A design pattern where classes don’t create their own dependencies but receive them from the outside.  
+- **Why**: Makes code loosely coupled, easier to swap implementations, and testable with mocks.  
+- **How it works**: Laravel looks at the constructor type-hints and automatically provides the required objects using the service container.  
+- **Example**:  
+  ```php
+  class OrderService {
+      public function __construct(PaymentGateway $gateway) {
+          $this->gateway = $gateway;
+      }
   }
-  ````
-  **Contextual Binding**
-  - means to inject same class but with different implementation
-  
-  ````php
-  $this->app->when(PhotoController::class)
-      ->needs(Filesystem::class)
-      ->give(function () {
-          return Storage::disk('local');
-      });
-  
-  $this->app->when(VideoController::class)
-      ->needs(Filesystem::class)
-      ->give(function () {
-          return Storage::disk('s3');
-      });
-  ````
-  
-  **Tagging**
-  - means to bind an array of different interfaces/classes using `tage('array_of_intefaces', 'user_defined_tag_name')` then use that tag using `return new AnyClass($app->tagged('user_defined_tag_name'));`
-  
-  **Resolve Binding**
-  - Atter all bindings registered in service provider, you can resolve class instance from container using `$app->method` `make('name_of_class_or_interface')` or helper  `resolve('name_of_class_or_interface')`
+  // Laravel injects the correct PaymentGateway when resolving OrderService
 
+#### 2. Service Container
+- **Definition**: Laravel’s central dependency injection system that manages how objects and their dependencies are constructed.  
+- **Why**: Simplifies object creation, allows binding interfaces to implementations, supports singletons, and keeps code flexible and testable.  
+- **How it works**:  
+  - When you request a class, Laravel first checks its registered bindings.  
+  - If a binding exists, it follows the rule (`bind`, `singleton`, or `instance`).  
+  - If no binding exists, Laravel uses reflection to read the constructor type-hints and recursively resolve dependencies.  
+
+- **Bindings**:  
+  - `bind()` → creates a **new instance** every time you resolve it.  
+    ```php
+    app()->bind(Logger::class, FileLogger::class);
+    $a = app(Logger::class); // new FileLogger
+    $b = app(Logger::class); // another new FileLogger
+    ```
+  - `singleton()` → creates the instance **once** and reuses it for all future requests.  
+    ```php
+    app()->singleton(Logger::class, FileLogger::class);
+    $a = app(Logger::class); // FileLogger
+    $b = app(Logger::class); // same FileLogger as $a
+    ```
+  - `instance()` → directly registers an **already-built object** into the container.  
+    - Use when you already have an object you want Laravel to reuse.  
+    - Example: injecting config-based or runtime-created objects.  
+    ```php
+    $logger = new FileLogger('/tmp/custom.log');
+    app()->instance(Logger::class, $logger);
+
+    $a = app(Logger::class); // same $logger object
+    $b = app(Logger::class); // same $logger object (no new() call)
+    ```
+- **Example**:  
+  ```php
+  // Binding an interface to a concrete class
+  app()->bind(PaymentGateway::class, StripeGateway::class);
+
+  // Resolving from the container
+  $gateway = app(PaymentGateway::class); // returns StripeGateway
 
 #### 3. Service Provider
-- ServiceProviders are the simple classes that are used to register things like registering service_containers, events, middlewares etc for the framework.
-- This is a central place for your application that decides bindings for the service being provided and
-  boot all registered services.           
-- This has 2 methods
-    - `register` used for binding classes in service container
-    - `boot` is called after all services in `register` method have been registered. Here you can also type hint services         
+- **Definition**: A Service Provider is the central place in Laravel where you register bindings, event listeners, routes, or any service setup. Every core Laravel feature (auth, cache, queue, etc.) is bootstrapped through service providers.  
+- **Why**: Keeps application startup organized, allows packages and apps to configure their services in one place, and ensures all services are registered before the application runs.  
 
-  **Registering Provider**
-  - service provider can be registered in `config/app.php` file's `providers` array. (Eager Loaded on every request)
-  
-  **Deferred Provider**
-  - Deffer the provider (Lazy Load) if just there are only bindings in service provider. This will improve performance. Laravel will load this provider only when you resolve thsi service
-  - The `provider` method is used for deffered laoding which will return array_of_service_container_bindings registered by this provider
+- **Key Methods**:  
+  - `register()` → Used to bind services into the service container.  
+    - Only register things here (no heavy logic).  
+    - Runs **before** all providers are booted.  
+    ```php
+    public function register() {
+        $this->app->singleton(PaymentGateway::class, function ($app) {
+            return new StripeGateway(config('services.stripe.key'));
+        });
+    }
+    ```
+  - `boot()` → Used to run logic that depends on services already being registered.  
+    - Commonly used for event listeners, route loading, observers, or publishing configs.  
+    - Runs **after** all `register()` methods have finished.  
+    ```php
+    public function boot() {
+        User::observe(UserObserver::class);
+    }
+    ```
 
-#### 4. Facades
-- Facades provide a "static" interface to classes that are available in the application's service container. 
-- Facades serve as "static proxies", provides short syntax
-- Facades use dynamic methods to proxy method calls to objects resolved from the service container
+- **How it works behind the scenes**:  
+  1. Laravel reads the list of service providers from `config/app.php`.  
+  2. For each provider:  
+     - Calls `register()` first → bindings go into the service container.  
+  3. After all providers have registered services:  
+     - Calls `boot()` → ensures every service can safely use others.  
 
-  **How it works**
-  - Facade is a class that provides access to an object from the container.
-  - The Facade base class makes use of the `__callStatic()` magic-method to defer calls from your facade to an object resolved from the container. 
-  - Facade class defines the method getFacadeAccessor(). This method's job is to return the name of a service container binding. 
-  - When a user references any static method on the Cache facade, Laravel resolves the cache binding from the service container and runs the requested method against that object.
+- **Example**:  
+  ```php
+  class AppServiceProvider extends ServiceProvider {
+      public function register() {
+          // Register bindings
+          $this->app->bind(PaymentGateway::class, StripeGateway::class);
+      }
+
+      public function boot() {
+          // Logic after registration
+          View::share('appName', config('app.name'));
+      }
+  }
+
+#### 4. Facade
+- **Definition**: A Facade in Laravel is a static-like interface that gives easy access to classes registered in the service container. It looks like a static call, but under the hood it resolves the real object from the container.  
+- **Why**: Provides a clean, expressive, and short syntax for common services (Cache, DB, Log, etc.) without needing to manually resolve them. Makes code easier to read while still supporting dependency injection.  
+
+- **How it works behind the scenes**:  
+  1. Every facade extends `Illuminate\Support\Facades\Facade`.  
+  2. When you call `Cache::put('key', 'value')`, PHP sees a static call to a method (`put`) that doesn’t exist on the `Cache` class.  
+  3. Laravel’s base `Facade` class defines the magic method `__callStatic($method, $args)`.  
+  4. Inside `__callStatic()`:  
+     - It calls `getFacadeAccessor()` to find which binding to use (e.g., `'cache'`).  
+     - It asks the service container (`app('cache')`) to resolve the real object.  
+     - It forwards the method call (`put`) and arguments to that object.  
+  5. The resolved object (e.g., `CacheManager`) actually performs the work.  
+
+- **Example**:  
+  ```php
+  // Using Facade
+  Cache::put('key', 'value', 600);
+
+  // Step-by-step behind the scenes:
+  // 1. PHP triggers __callStatic('put', ['key','value',600]) on Cache
+  // 2. Facade base resolves app('cache') from container
+  // 3. Calls ->put('key','value',600) on the cache instance
+
 
 #### 5. Autoloading
 - to load files automatically from storage when needed
@@ -122,70 +167,76 @@
 
 ### Laravle Built-in Packages
 
-  - #### Laravel Jetstream
-    - Designed application Starter kit for fresh laravel application.
-    - This provides the implementation for your application's login, registration, email verification, two-factor authentication, session management, API via Laravel Sanctum, and optional team management features.
+**Laravel Jetstream**  
+- **Definition**: An application starter kit for Laravel that provides authentication scaffolding (login, registration, email verification, 2FA, sessions, teams).  
+- **Why**: Saves time by giving you a ready-made authentication and team management system.  
+- **How it works**: Ships with Livewire or Inertia.js frontends, integrates with Laravel’s auth system, and can be customized for your project.
 
-  - #### Laravel Telescope
-    - Laravel Telescope is an elegant debug assistant for the Laravel framework.
-    - provides insight into the requests coming into your application, exceptions, log entries, database queries, queued jobs, mail, notifications, cache operations, scheduled tasks, variable dumps and more.
+**Laravel Socialite**  
+- **Definition**: Official package for OAuth authentication with third-party providers like Google, Facebook, GitHub, LinkedIn, etc.  
+- **Why**: Makes “Login with X” functionality simple and secure.  
+- **How it works**: Handles redirecting users to providers, retrieving their profile data, and mapping it back to your Laravel app.
 
-  - #### Laravel Socialite
-    -  Laravel Socialite provides a simple, convenient way to authenticate with OAuth providers like Facebook, Twitter, LinkedIn, Google, GitHub, GitLab, and Bitbucket.
+**Laravel Passport**  
+- **Definition**: Full OAuth2 server implementation for Laravel.  
+- **Why**: Useful when building APIs that require token-based authentication with scopes, refresh tokens, and third-party access.  
+- **How it works**: Provides routes and controllers for issuing/managing tokens, which secure API routes via middleware.
 
-  - #### Laravel Scout
-    - Laravel Scout provides a simple, driver based solution for adding full-text search to your Eloquent models. Using model observers.
-    - This will automatically keep your search indexes in sync with your Eloquent records.
-    - Currently, Scout ships with an _Algolia driver_ however, writing custom drivers is simple and you are free to extend Scout with your own search implementations.
-    - **Full Text Search** is a comprehensive search method that compares every word of the search request against every word within the document or database. It lets the user find a word or phrase anywhere within the database or document.  A full-text query returns any documents that contain at least one word match.
-    - **Algolia** is a hosted search engine capable of delivering real-time results from the first keystroke. 
+**Laravel Sanctum**  
+- **Definition**: Lightweight alternative to Passport for SPA, mobile, and simple API authentication.  
+- **Why**: Easier to implement than Passport; supports cookie-based SPA auth and personal access tokens.  
+- **How it works**: Issues API tokens stored in a database and validates them against users.
 
-  - #### Laravel Passport
-    - Laravel Passport provides a full OAuth2 server implementation for your Laravel application.
-    - If your application absolutely needs to support OAuth2, then you should use Laravel Passport.
-    - if you are attempting to authenticate a single-page application, mobile application, or issue API tokens, you should use Laravel Sanctum. Laravel Sanctum does not support OAuth2
+**Laravel Horizon**  
+- **Definition**: A dashboard and configuration system for managing queues with Redis.  
+- **Why**: Helps developers monitor jobs, see throughput, failures, and retry jobs easily.  
+- **How it works**: Hooks into the queue worker system and provides a web UI to visualize and manage job processing.
 
-  - #### Laravel Envoyer (Deployment Management)
-    - Envoyer is Platform as a Service (PaaS) to deploy PHP and Laravel applications with zero downtime.
-    - Easy rollbacks in case of any crash while deployment.
+**Laravel Telescope**  
+- **Definition**: Debugging assistant for Laravel.  
+- **Why**: Gives insights into requests, queries, logs, cache, mail, and exceptions during development.  
+- **How it works**: Records application events and provides a developer-friendly dashboard.
 
-  - #### Laravel Forge (Server Management)
-    - Laravel Forge is Deployment as a Service.
-    - will go offline while deployemnt.(No zero downtime)
-    - Laravel Forge is a server management and site deployment service. This provides a GUI for server management.
-    - It can be used to automate the deployment of any web application that uses a PHP server.
-    - Instead of installing each component like NGINX, MySQL, Redis and PHP to run web app, You can automate all these installations & configurations using Laravel Forge.
-    - You will manually scale servers.
-    - Forge can do a variety of things: add sub-domains, install SSL certificates, create queue workers, create Cron jobs, etc.
-    - This can create and manage servers on the following server providers like DigitalOcean, AWS.
-    - Forge also supports the ability to use your own custom server. There is an option for that _Custom VPS_.
+**Laravel Scout**  
+- **Definition**: Search engine integration for Eloquent models.  
+- **Why**: Adds powerful full-text search capabilities to your models.  
+- **How it works**: Syncs model data to external services like Algolia or Meilisearch and lets you query them easily.
 
-  - #### Laravel Vapor 
-    - Laravel Vapor is an auto-scaling, serverless deployment platform for Laravel, powered by `AWS Lambda`.
-    - You can manage your Laravel infrastructure on Vapor.
-    - Some features are Auto-scaling, Zero-downtime deployments, Redis, Database & DNS Management, File uploads on S3.
-    - **NOTES**
-      - _Create Vapor Account_ before integrating Vapor into your application. 
-      - _Install Vapor CLI_ to deploy your Laravel Vapor applications using the Vapor CLI.
-      - _Install Vapor core package_ that contains various Vapor runtime files and a service provider to allow your application to run on Vapor. 
-      - _Link with AWS_ using an an active AWS account on your team's settings management page in order to deploy projects or create other resources using Vapor.
+**Laravel Cashier**  
+- **Definition**: Subscription billing integration for Stripe and Paddle.  
+- **Why**: Simplifies billing workflows like plans, invoices, and subscription status.  
+- **How it works**: Provides Eloquent-style methods to interact with payment providers.
 
-  - #### Laravel Homestead (Development Envirenment)
-    - _Vagrant_ is an open-source software product for building and maintaining portable virtual software development environments; e.g., for VirtualBox, KVM, Hyper-V, Docker containers, VMware, and AWS
-    - _Vagrant Boxes_ are the package format for Vagrant environments. A box can be used by anyone on any platform that Vagrant supports to bring up an identical working environment.
-    - _Laravel Homestead_ is a pre-packaged Vagrant box that provides you a wonderful development environment without requiring you to install PHP, a web server, and any other server software on your local machine. 
+**Laravel Forge**  
+- **Definition**: A SaaS tool by Laravel for server management and deployment.  
+- **Why**: Lets developers deploy Laravel apps to cloud servers (DigitalOcean, AWS, Linode, etc.) without manual setup.  
+- **How it works**: Provisions servers, configures PHP/MySQL/Nginx, manages SSL, queues, and automated deployments.
 
-  **Serverless**
-  Serverless computing (or serverless for short), is an execution model where the cloud provider (AWS, Azure, or Google Cloud) is responsible for executing a piece of code by dynamically allocating the resources. And only charging for the amount of resources used to run the code. The code is typically run inside stateless containers that can be triggered by a variety of events including http requests, database events, queuing services, monitoring alerts, file uploads, scheduled events (cron jobs), etc. The code that is sent to the cloud provider for execution is usually in the form of a function.
+**Laravel Envoyer**  
+- **Definition**: A zero-downtime deployment service for PHP and Laravel apps.  
+- **Why**: Keeps your app online while deploying updates (no downtime).  
+- **How it works**: Uses atomic deployment strategy (symlink release switching) and integrates with GitHub/Bitbucket.
+
+**Laravel Vapor**  
+- **Definition**: Laravel’s official serverless deployment platform for AWS.  
+- **Why**: Lets you run Laravel apps at scale without managing servers.  
+- **How it works**: Deploys your app to AWS Lambda, handles scaling, queues, databases, and storage seamlessly.
+
+**Laravel Homestead**  
+- **Definition**: A pre-packaged Vagrant virtual machine provided by Laravel for local development.  
+- **Why**: Gives developers a consistent, ready-to-use environment with PHP, MySQL, Nginx, Redis, Node, and other tools installed, avoiding “works on my machine” issues.  
+- **How it works**: Runs inside Vagrant/VirtualBox (or Parallels/VMware), providing an isolated Linux environment that mirrors production. Developers map their Laravel projects into Homestead and access them via a local domain.
+
+
+**Serverless**
+Serverless computing (or serverless for short), is an execution model where the cloud provider (AWS, Azure, or Google Cloud) is responsible for executing a piece of code by dynamically allocating the resources. And only charging for the amount of resources used to run the code. The code is typically run inside stateless containers that can be triggered by a variety of events including http requests, database events, queuing services, monitoring alerts, file uploads, scheduled events (cron jobs), etc. The code that is sent to the cloud provider for execution is usually in the form of a function.
   
   **AWS Lambda** is a serverless compute service that lets you run code without provisioning or managing servers.
   **OAuth 2.0** is the industry-standard protocol for authorization.
 
 
-**These are quick notes to revise optimization techniques. Full explanation can be found a https://geekflare.com/laravel-optimization/**
-
 ### PHP App Optimization
-- optimization can be done at foru level.
+- optimization can be done at four level.
 - **Lnaguage level** means use faster version of the language & avoid the coding style feature that makes the code slow.
 - **Framework level** means framework architecture or features specific.
 - **Infrastructure level** means PHP process manager, database, web server etc.
